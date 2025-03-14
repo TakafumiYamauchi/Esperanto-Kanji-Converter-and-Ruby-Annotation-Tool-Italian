@@ -148,7 +148,7 @@ with st.expander("Elenco di file di esempio (download)"):
         btn = st.download_button(
             label="Scarica CSV di esempio n.1 (Radici Esperanto – Traduzione Italiana + annotazioni ruby)",
             data=file,
-            file_name="エスペラント語根-イタリア語訳ルビ対応リスト.csv",
+            file_name="Elenco_di_radici_esperanto_con_traduzioni_italiane_e_annotazioni_ruby.csv",
             mime="text/csv"
         )
 
@@ -161,7 +161,7 @@ with st.expander("Elenco di file di esempio (download)"):
         btn = st.download_button(
             label="Scarica CSV di esempio n.2 (Radici Esperanto – Caratteri cinesi di Mingeo)",
             data=file,
-            file_name="エスペラント語根-漢字対応リスト＿楊氏(Mingeo).csv",
+            file_name="RadiciEsperanto_CaratteriCinesi_propostaMingeo.csv",
             mime="text/csv"
         )
 
@@ -169,12 +169,12 @@ with st.expander("Elenco di file di esempio (download)"):
     **CSV di esempio n.3 (Tabella di corrispondenza tra radici esperanto e caratteri cinesi)**  
     Ulteriore file CSV con corrispondenza radici-caratteri cinesi.
     """)
-    file_path0 = './Appの运行に使用する各类文件/世界语词根-漢字对应列表.csv'
+    file_path0 = './Appの运行に使用する各类文件/世界语词根-汉字对应列表.csv'
     with open(file_path0, "rb") as file:
         btn = st.download_button(
             label="Scarica CSV di esempio n.3 (Radici Esperanto – Caratteri cinesi)",
             data=file,
-            file_name="エスペラント語根-漢字対応リスト.csv",
+            file_name="RadiciEsperanto_CaratteriCinesi.csv",
             mime="text/csv"
         )
 
@@ -189,7 +189,7 @@ with st.expander("Elenco di file di esempio (download)"):
         btn_json = st.download_button(
             label="Scarica JSON di esempio n.1 (Scomposizione delle radici esperanto)",
             data=file_json,
-            file_name="エスペラント単語語根分解法ユーザー設定.json",
+            file_name="ImpostazioniUtente_ScomposizioneRadiciEsperanto.json",
             mime="application/json"
         )
 
@@ -204,7 +204,7 @@ with st.expander("Elenco di file di esempio (download)"):
         btn_json = st.download_button(
             label="Scarica JSON di esempio n.2 (Impostazioni utente per il testo sostituito)",
             data=file_json,
-            file_name="置換後文字列のユーザー設定.json",
+            file_name="ImpostazioniUtente_TestoSostituito.json",
             mime="application/json"
         )
 
@@ -217,7 +217,7 @@ with st.expander("Elenco di file di esempio (download)"):
         st.download_button(
             label="Scarica Excel di esempio n.1 (Radici esperanto con traduzioni in 14 lingue)",
             data=file,
-            file_name="14言語のエスペラント語根-訳ルビ対応リスト.xlsx",
+            file_name="RadiciEsperanto_conAnnotazioni_in14Lingue.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
@@ -230,7 +230,7 @@ with st.expander("Elenco di file di esempio (download)"):
         st.download_button(
             label="Scarica Excel di esempio n.2 (Radici esperanto – trad. giapponese con livello di apprendimento)",
             data=file,
-            file_name="エスペラント語根-日本語訳ルビ対応リスト(習得レベル付き).xlsx",
+            file_name="RadiciEsperanto_Giapponese_conLivelloApprendimento.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
@@ -343,7 +343,7 @@ elif json_choice == "Usa il file di default":
         st.stop()
 
 json_choice2 = st.radio("2. Come procedere con il file JSON per definire il testo sostituito?", ("Carica un file JSON", "Usa il file di default"))
-json_path_default2 = "./Appの运行に使用する各类文件/替换后文字列(漢字)の使用者自定义设置(基本上完全不推荐).json"
+json_path_default2 = "./Appの运行に使用する各类文件/替换后文字列(汉字)の使用者自定义设置(基本上完全不推荐).json"
 user_replacement_item_setting_list = None
 
 if json_choice2 == "Carica un file JSON":
