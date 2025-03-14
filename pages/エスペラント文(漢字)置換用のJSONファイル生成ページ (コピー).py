@@ -1,4 +1,4 @@
-##  エスペラント文(漢字)置換用のJSONファイル生成ページ.py(2つ目)## エスペラント文(漢字)置換用のJSONファイル生成ページ.py(2つ目)
+##  エスペラント文(漢字)置換用のJSONファイル生成ページ.py(2つ目)
 #############################
 # エスペラント文(漢字)置換用のJSONファイル生成ページ.py (Streamlit特有のpagesフォルダに入れるコード)
 # 
@@ -71,20 +71,45 @@ from esp_replacement_json_make_module import (
 #---------------------------------------------------------------------
 
 # 動詞の活用語尾 (例: as,is,os,us など) を表す辞書
+# キーは活用語尾そのもの、バリューも基本的には同じ文字列を入れていますが、
+# 後段で safe_replace() によって(ルビ等)を挿入できるようにしてあります。
 verb_suffix_2l = {
     'as':'as', 'is':'is', 'os':'os', 'us':'us','at':'at','it':'it','ot':'ot',
     'ad':'ad','iĝ':'iĝ','ig':'ig','ant':'ant','int':'int','ont':'ont'
 }
 
+#---------------------------------------------------------------------
+# 例: an, on は後の処理で文字列(漢字)と紐づけるためのサンプルデータ
+# ここではAN, ON としてリストを定義し、末尾が"an"/"on"の単語について、
+# 語根分割(形容詞語尾/名詞語尾として扱うか、接尾辞"an"として扱うかetc)を
+# 判定する際に活用する。後段のコードで優先順位を再設定する処理で参照されます。
+#---------------------------------------------------------------------
 AN=[['dietan', '/diet/an/', '/diet/an'], ['afrikan', '/afrik/an/', '/afrik/an'], ['movadan', '/mov/ad/an/', '/mov/ad/an'], ['akcian', '/akci/an/', '/akci/an'], ['montaran', '/mont/ar/an/', '/mont/ar/an'], ['amerikan', '/amerik/an/', '/amerik/an'], ['regnan', '/regn/an/', '/regn/an'], ['dezertan', '/dezert/an/', '/dezert/an'], ['asocian', '/asoci/an/', '/asoci/an'], ['insulan', '/insul/an/', '/insul/an'], ['azian', '/azi/an/', '/azi/an'], ['ŝtatan', '/ŝtat/an/', '/ŝtat/an'], ['doman', '/dom/an/', '/dom/an'], ['montan', '/mont/an/', '/mont/an'], ['familian', '/famili/an/', '/famili/an'], ['urban', '/urb/an/', '/urb/an'], ['popolan', '/popol/an/', '/popol/an'], ['dekan', '/dekan/', '/dek/an'], ['partian', '/parti/an/', '/parti/an'], ['lokan', '/lok/an/', '/lok/an'], ['ŝipan', '/ŝip/an/', '/ŝip/an'], ['eklezian', '/eklezi/an/', '/eklezi/an'], ['landan', '/land/an/', '/land/an'], ['orientan', '/orient/an/', '/orient/an'], ['lernejan', '/lern/ej/an/', '/lern/ej/an'], ['enlandan', '/en/land/an/', '/en/land/an'], ['kalkan', '/kalkan/', '/kalk/an'], ['estraran', '/estr/ar/an/', '/estr/ar/an'], ['etnan', '/etn/an/', '/etn/an'], ['eŭropan', '/eŭrop/an/', '/eŭrop/an'], ['fazan', '/fazan/', '/faz/an'], ['polican', '/polic/an/', '/polic/an'], ['socian', '/soci/an/', '/soci/an'], ['societan', '/societ/an/', '/societ/an'], ['grupan', '/grup/an/', '/grup/an'], ['ligan', '/lig/an/', '/lig/an'], ['nacian', '/naci/an/', '/naci/an'], ['koran', '/koran/', '/kor/an'], ['religian', '/religi/an/', '/religi/an'], ['kuban', '/kub/an/', '/kub/an'], ['majoran', '/major/an/', '/major/an'], ['nordan', '/nord/an/', '/nord/an'], ['paran', 'paran', '/par/an'], ['parizan', '/pariz/an/', '/pariz/an'], ['parokan', '/parok/an/', '/parok/an'], ['podian', '/podi/an/', '/podi/an'], ['rusian', '/rus/i/an/', '/rus/ian'], ['satan', '/satan/', '/sat/an'], ['sektan', '/sekt/an/', '/sekt/an'], ['senatan', '/senat/an/', '/senat/an'], ['skisman', '/skism/an/', '/skism/an'], ['sudan', 'sudan', '/sud/an'], ['utopian', '/utopi/an/', '/utopi/an'], ['vilaĝan', '/vilaĝ/an/', '/vilaĝ/an'], ['arĝentan', '/arĝent/an/', '/arĝent/an']]
 ON=[['duon', '/du/on/', '/du/on'], ['okon', '/ok/on/', '/ok/on'], ['nombron', '/nombr/on/', '/nombr/on'], ['patron', '/patron/', '/patr/on'], ['karbon', '/karbon/', '/karb/on'], ['ciklon', '/ciklon/', '/cikl/on'], ['aldon', '/al/don/', '/ald/on'], ['balon', '/balon/', '/bal/on'], ['baron', '/baron/', '/bar/on'], ['baston', '/baston/', '/bast/on'], ['magneton', '/magnet/on/', '/magnet/on'], ['beton', 'beton', '/bet/on'], ['bombon', '/bombon/', '/bomb/on'], ['breton', 'breton', '/bret/on'], ['burĝon', '/burĝon/', '/burĝ/on'], ['centon', '/cent/on/', '/cent/on'], ['milon', '/mil/on/', '/mil/on'], ['kanton', '/kanton/', '/kant/on'], ['citron', '/citron/', '/citr/on'], ['platon', 'platon', '/plat/on'], ['dekon', '/dek/on/', '/dek/on'], ['kvaron', '/kvar/on/', '/kvar/on'], ['kvinon', '/kvin/on/', '/kvin/on'], ['seson', '/ses/on/', '/ses/on'], ['trion', '/tri/on/', '/tri/on'], ['karton', '/karton/', '/kart/on'], ['foton', '/fot/on/', '/fot/on'], ['peron', '/peron/', '/per/on'], ['elektron', '/elektr/on/', '/elektr/on'], ['drakon', 'drakon', '/drak/on'], ['mondon', '/mon/don/', '/mond/on'], ['pension', '/pension/', '/pensi/on'], ['ordon', '/ordon/', '/ord/on'], ['eskadron', 'eskadron', '/eskadr/on'], ['senton', '/sen/ton/', '/sent/on'], ['eston', 'eston', '/est/on'], ['fanfaron', '/fanfaron/', '/fanfar/on'], ['feston', '/feston/', '/fest/on'], ['flegmon', 'flegmon', '/flegm/on'], ['fronton', '/fronton/', '/front/on'], ['galon', '/galon/', '/gal/on'], ['mason', '/mason/', '/mas/on'], ['helikon', 'helikon', '/helik/on'], ['kanon', '/kanon/', '/kan/on'], ['kapon', '/kapon/', '/kap/on'], ['kokon', '/kokon/', '/kok/on'], ['kolon', '/kolon/', '/kol/on'], ['komision', '/komision/', '/komisi/on'], ['salon', '/salon/', '/sal/on'], ['ponton', '/ponton/', '/pont/on'], ['koton', '/koton/', '/kot/on'], ['kripton', 'kripton', '/kript/on'], ['kupon', '/kupon/', '/kup/on'], ['lakon', 'lakon', '/lak/on'], ['ludon', '/lu/don/', '/lud/on'], ['melon', '/melon/', '/mel/on'], ['menton', '/menton/', '/ment/on'], ['milion', '/milion/', '/mili/on'], ['milionon', '/milion/on/', '/milion/on'], ['naŭon', '/naŭ/on/', '/naŭ/on'], ['violon', '/violon/', '/viol/on'], ['trombon', '/trombon/', '/tromb/on'], ['senson', '/sen/son/', '/sens/on'], ['sepon', '/sep/on/', '/sep/on'], ['skadron', 'skadron', '/skadr/on'], ['stadion', '/stadion/', '/stadi/on'], ['tetraon', 'tetraon', '/tetra/on'], ['timon', '/timon/', '/tim/on'], ['valon', 'valon', '/val/on']]
 
+# allowed_values は -1 表記などを含む例 (ユーザーが単語を排除したい場合に用いる)
+# たとえば、ユーザーのJSON設定で "['xxx', -1, [...]]" となっていたら、
+# その単語を置換対象から完全に外す、といった処理を行うときに使用される。
 allowed_values = {-1, "-1", "ー１", "ー1", "-１", "－１", "－1"}
 
+#=====================================================================
+# 二文字の語根を扱うためのリスト
+# suffix_2char_roots : 接尾辞 (ad, ag, am, ar など)
+# prefix_2char_roots : 接頭辞 (al, am, av, bo など)
+# standalone_2char_roots : 単体でも語根になる (al, ci, da, de など)
+#=====================================================================
 suffix_2char_roots=['ad', 'ag', 'am', 'ar', 'as', 'at', 'av', 'di', 'ec', 'eg', 'ej', 'em', 'er', 'et', 'id', 'ig', 'il', 'in', 'ir', 'is', 'it', 'lu', 'nj', 'op', 'or', 'os', 'ot', 'ov', 'pi', 'te', 'uj', 'ul', 'um', 'us', 'uz','ĝu','aĵ','iĝ','aĉ','aĝ','ŝu','eĥ']
 prefix_2char_roots=['al', 'am', 'av', 'bo', 'di', 'du', 'ek', 'el', 'en', 'fi', 'ge', 'ir', 'lu', 'ne', 'ok', 'or', 'ov', 'pi', 're', 'te', 'uz','ĝu','aĉ','aĝ','ŝu','eĥ']
 standalone_2char_roots=['al', 'ci', 'da', 'de', 'di', 'do', 'du', 'el', 'en', 'fi', 'ha', 'he', 'ho', 'ia', 'ie', 'io', 'iu', 'ja', 'je', 'ju','ke', 'la', 'li', 'mi', 'ne', 'ni', 'nu', 'ok', 'ol', 'po', 'se', 'si', 've', 'vi','ŭa','aŭ','ĉe','ĝi','ŝi','ĉu']
 
+# an, on は別扱いのため、ここでの二文字リストからは除外されています。
+
+#=====================================================================
+# placeholders (占位符ファイル) を予め読み込み
+# main.py での文字列(漢字)置換で衝突や誤置換が起こらないように
+# 一意の placeholder を使う設計になっているため、
+# それら placeholder文字列を外部ファイルから大量に読み込みます。
+#=====================================================================
 imported_placeholders_for_global_replacement = import_placeholders(
     './Appの运行に使用する各类文件/占位符(placeholders)_$20987$-$499999$_全域替换用.txt'
 )
@@ -95,140 +120,152 @@ imported_placeholders_for_local_replacement = import_placeholders(
     './Appの运行に使用する各类文件/占位符(placeholders)_@20374@-@97648@_局部文字列替换用.txt'
 )
 
+#=====================================================================
+# 事前に作成した "Unicode_BMP全范围文字幅(宽)_Arial16.json" を読み込み
+# (ルビサイズの調整等で使う想定。文字幅に応じた改行などができる)
+#=====================================================================
 with open("./Appの运行に使用する各类文件/Unicode_BMP全范围文字幅(宽)_Arial16.json", "r", encoding="utf-8") as fp:
     char_widths_dict = json.load(fp)
 
 #=====================================================================
 # 1) ページ設定 & タイトル
+# page_title: ブラウザタブに表示されるタイトル
+# layout="wide" で横幅を広く使えるUIにする
 #=====================================================================
 st.set_page_config(
-    page_title="Strumento per generare file JSON per la sostituzione di testo (caratteri cinesi) in Esperanto",
+    page_title="Esperanto文の文字列(漢字)置換用のJSONファイル生成ツール",
     layout="wide"
 )
-st.title("Generare un file JSON per la sostituzione (caratteri cinesi) in testo Esperanto.")
+st.title("エスペラント文の(漢字)置換に用いるJSONファイルを生成する。")
 st.write("---")
 
 #=====================================================================
 # 2) 概要説明 (使い方)
 #=====================================================================
-with st.expander("Apri le istruzioni su come utilizzare", expanded=True):
+with st.expander("使い方の説明を開く", expanded=True):
     st.markdown("""
-    #### Prima di iniziare
-    In questa pagina è possibile generare e scaricare
-    il file JSON (che potrebbe raggiungere anche 50MB)
-    da utilizzare nella sostituzione di testo in Esperanto
-    nella pagina principale.
+    #### はじめに
+    このページでは、最終的なエスペラント文の置換(main ページ)で用いる
+    置換用のJSONファイル(50MB程度になることも)を生成し、
+    その結果をダウンロードできるようにします。
 
-    **Procedura di utilizzo**:
-    1. Caricare (oppure utilizzare un default) il **file CSV**
-       (tabella di corrispondenze tra radici dell'Esperanto e la traduzione in italiano o i caratteri cinesi).
-    2. Caricare (oppure utilizzare un default) il **file JSON**
-       (regole di scomposizione delle radici e/o impostazioni personalizzate sul testo sostituito).
-    3. Fare clic su “Crea il file JSON per la sostituzione” per
-       **scaricare** il file JSON per la sostituzione.
+    利用手順は以下の通りです:
+    1. 必要な **CSV ファイル**(エスペラント語根→イタリア語訳 の対応表など) をアップロード、またはデフォルトを使用。
+    2. 必要に応じて **JSON ファイル**(語根分解ルールや置換後文字列の設定など) をアップロード、またはデフォルトを使用。
+    3. 「置換用JSONファイルを作成する」を押して生成された
+       **置換用JSONファイル**をダウンロード。
 
-    Sono disponibili file di esempio nella sezione sottostante,
-    che possono essere utili come riferimento per la formattazione
-    o per eventuali modifiche personalizzate.
+    下記にはサンプルファイルも用意しており、カスタム設定の書式などを
+    参考にしていただけます。
     """)
 
 #=====================================================================
 # 3) サンプルファイル一覧 (折りたたみ)
+# ここでは、サンプル用のCSVやJSON、Excelファイルを
+# ダウンロードするボタンを設けています。
 #=====================================================================
-with st.expander("Elenco di file di esempio (download)"):
-    st.write("#### Elenco di file di esempio")
+with st.expander("サンプルファイル一覧(ダウンロード用)"):
+    st.write("#### サンプルファイル一覧")
 
+    # サンプルCSV１
     st.markdown("""
-    **CSV di esempio n.1 (Tabella di corrispondenza tra radici esperanto e traduzioni italiane + annotazioni ruby)**  
-    File CSV con corrispondenza riga per riga tra radici dell'Esperanto e traduzione italiana (eventualmente con annotazioni ruby).  
-    Creando un CSV in questo formato e caricandolo, il tool genera il file JSON per la sostituzione.
+    **サンプルCSV１(エスペラント語根-イタリア語訳ルビ対応リスト)**
+    エスペラント語根とイタリア語訳を 1 行ずつ対応づけたCSVファイルです。
+    この形式に合わせて CSV を作成し、アップロードすることで
+    置換用のJSONファイルが生成されます。
     """)
     file_path0 = './Appの运行に使用する各类文件/Elenco di radici esperanto con traduzioni italiane e annotazioni ruby.csv'
     with open(file_path0, "rb") as file:
         btn = st.download_button(
-            label="Scarica CSV di esempio n.1 (Radici Esperanto – Traduzione Italiana + annotazioni ruby)",
+            label="サンプルCSV１(エスペラント語根-イタリア語訳ルビ対応リスト)ダウンロード",
             data=file,
             file_name="エスペラント語根-イタリア語訳ルビ対応リスト.csv",
             mime="text/csv"
         )
 
+    # サンプルCSV２
     st.markdown("""
-    **CSV di esempio n.2 (Tabella di corrispondenza tra radici esperanto e caratteri cinesi, proposta di “Mingeo”)**  
-    Qui, ogni riga del CSV associa una radice dell'Esperanto a un carattere (o più caratteri) cinesi.
+    **サンプルCSV２(エスペラント語根-漢字対応リスト　知乎上のエスペランチスト,楊氏(Mingeo)による漢字化案)** 
+    こちらはエスペラント語根と漢字を対応づけたCSVファイルです。
     """)
     file_path0 = './Appの运行に使用する各类文件/Mingeo先生版 世界语词根-汉字对应列表.csv'
     with open(file_path0, "rb") as file:
         btn = st.download_button(
-            label="Scarica CSV di esempio n.2 (Radici Esperanto – Caratteri cinesi di Mingeo)",
+            label="サンプルCSV２(エスペラント語根-漢字対応リスト＿楊氏(Mingeo))ダウンロード",
             data=file,
             file_name="エスペラント語根-漢字対応リスト＿楊氏(Mingeo).csv",
             mime="text/csv"
         )
 
+    # サンプルCSV３
     st.markdown("""
-    **CSV di esempio n.3 (Tabella di corrispondenza tra radici esperanto e caratteri cinesi)**  
-    Ulteriore file CSV con corrispondenza radici-caratteri cinesi.
+    **サンプルCSV３(エスペラント語根-漢字対応リスト)**
+    こちらはエスペラント語根と漢字を対応づけたCSVファイルです。
     """)
-    file_path0 = './Appの运行に使用する各类文件/世界语词根-漢字对应列表.csv'
+    file_path0 = './Appの运行に使用する各类文件/世界语词根-汉字对应列表.csv'
     with open(file_path0, "rb") as file:
         btn = st.download_button(
-            label="Scarica CSV di esempio n.3 (Radici Esperanto – Caratteri cinesi)",
+            label="サンプルCSV３(エスペラント語根-漢字対応リスト)ダウンロード",
             data=file,
             file_name="エスペラント語根-漢字対応リスト.csv",
             mime="text/csv"
         )
 
+    # サンプルJSON１
     st.markdown("""
-    **JSON di esempio n.1 (Impostazioni utente per la scomposizione delle radici esperanto)**  
-    **Utilizzo**: definisce come scomporre in radici le parole esperanto, l’ordine di sostituzione,
-    e quando applicare i suffissi (per es. forme verbali).  
-    (Esempio: `["am", "dflt", ["verbo_s1"]]`)
+    **サンプルJSON１(エスペラント単語語根分解法ユーザー設定)**
+    **用途**: エスペラント単語をどのように語根分解するかや、 
+    語尾(動詞活用語尾など)を追加した派生形をどのタイミングで置換に入れるか等、
+    細かく設定できます。サンプルファイル内のコメントを参照してください。
+    ( 例: `["am", "dflt", ["verbo_s1"]]` のように記述 )
     """)
     json_file_path = './Appの运行に使用する各类文件/世界语单词词根分解方法の使用者自定义设置.json'
     with open(json_file_path, "rb") as file_json:
         btn_json = st.download_button(
-            label="Scarica JSON di esempio n.1 (Scomposizione delle radici esperanto)",
+            label="サンプルJSON１(エスペラント単語語根分解法ユーザー設定)ダウンロード",
             data=file_json,
             file_name="エスペラント単語語根分解法ユーザー設定.json",
             mime="application/json"
         )
 
+    # サンプルJSON２
     st.markdown("""
-    **JSON di esempio n.2 (Impostazioni utente per il testo sostituito)**  
-    **Utilizzo**: per assegnare caratteri cinesi o formati speciali a specifiche parole
-    in aggiunta alla definizione di scomposizione radici del JSON di cui sopra.
-    (In genere basta modificare il file CSV e/o il JSON di scomposizione radici, e questo file non è strettamente necessario.)
+    ***サンプルJSON２(置換後文字列のユーザー設定)**
+    **用途**: 特定の単語に対して、上記の語根分解法に加え、
+    独自の漢字や特殊表記を割り当てる際に使用します。
+    (基本的にはCSVファイルを編集し、語根分解法JSONを使うだけで十分なことが多い。)
     """)
     json_file_path2 = './Appの运行に使用する各类文件/替换后文字列(汉字)の使用者自定义设置(基本上完全不推荐).json'
     with open(json_file_path2, "rb") as file_json:
         btn_json = st.download_button(
-            label="Scarica JSON di esempio n.2 (Impostazioni utente per il testo sostituito)",
+            label="サンプルJSON２(置換後文字列のユーザー設定)ダウンロード",
             data=file_json,
             file_name="置換後文字列のユーザー設定.json",
             mime="application/json"
         )
-
     st.markdown("""
-    **Excel di esempio n.1 (4736 radici esperanto con traduzioni/annotazioni in 14 lingue)**  
-    (Giapponese, Cinese, Coreano, Inglese, Russo, Spagnolo, Italiano, Francese, Tedesco,
-    Arabo, Hindi, Polacco, Vietnamita, Indonesiano)
+    ***サンプルExcel1(14言語のエスペラント語根-訳ルビ対応リスト)**  
+    14言語(日本語、中国語、韓国語、英語、ロシア語、スペイン語、イタリア語、フランス語、ドイツ語、アラビア語、ヒンディー語、ポーランド語、ベトナム語、インドネシア語)分の  
+    エスペラント語根とその注釈的訳ルビの対応リストが収録されたエクセルシートです。                         
     """)
     with open('./Appの运行に使用する各类文件/Kreado de rubenaj komentoj en 14 lingvoj (日本語, 中文, 한국어, English, Русский, español, italiano, français, Deutsch, العربية, हिन्दी, polski, Tiếng Việt, Bahasa Indonesia) respondaj al listo de 4736 Esperant.xlsx', "rb") as file:
         st.download_button(
-            label="Scarica Excel di esempio n.1 (Radici esperanto con traduzioni in 14 lingue)",
+            label="サンプルExcel１(14言語のエスペラント語根-訳ルビ対応リスト)ダウンロード",
             data=file,
             file_name="14言語のエスペラント語根-訳ルビ対応リスト.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
+
+    # サンプルExcel
     st.markdown("""
-    **Excel di esempio n.2 (Radici esperanto – traduzioni in giapponese, con livello di apprendimento)**  
-    **Utilizzo**: utile per personalizzare le radici da sostituire con una traduzione o un’annotazione personalizzata.
-    Contiene anche un "livello di apprendimento" basato su un dizionario base Esper/Jap.
+    ***サンプルExcel2(エスペラント語根-日本語訳ルビ対応リスト(習得レベル付き))** 
+    **用途**: 翻訳ルビを追加するエスペラント語根をカスタムしたい場合などに役立ちます。
+    エスペラント日本語基本辞書を基にした「習得レベル」などを併記しています。
     """)
     with open('./Appの运行に使用する各类文件/エスペラント語根-日本語訳ルビ対応リスト(習得レベル付き).xlsx', "rb") as file:
         st.download_button(
-            label="Scarica Excel di esempio n.2 (Radici esperanto – trad. giapponese con livello di apprendimento)",
+            label="サンプルExcel2(エスペラント語根-日本語訳ルビ対応リスト(習得レベル付き))ダウンロード",
             data=file,
             file_name="エスペラント語根-日本語訳ルビ対応リスト(習得レベル付き).xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -238,6 +275,8 @@ st.write("---")
 
 #=====================================================================
 # ユーザーに見せる出力形式選択 (例: HTML形式＿ルビ文字のサイズ調整等)
+# ここでの選択に応じて後段の output_format() が変化します。
+# (ルビを親文字にして訳をrtタグに入れるか、逆に漢字を親文字にしてエスペラントをrtにするかなど。)
 #=====================================================================
 options = {
     'HTML形式＿ルビ文字のサイズ調整': 'HTML格式_Ruby文字_大小调整',
@@ -250,10 +289,10 @@ options = {
 }
 
 display_options = list(options.keys())
-selected_display = st.selectbox('Seleziona il formato di output:', display_options)
+selected_display = st.selectbox('出力形式を選択:', display_options)
 format_type = options[selected_display]
 
-# 簡易サンプルの表示
+# 簡易サンプル: main_text_list と ruby_content_list の対応をループで作成
 main_text_list = ['Esperant','lingv', 'pac', 'amik', 'ec']
 ruby_content_list = ['世界语', '语言', '和平', '友', '性质']
 formatted_text = ''
@@ -261,106 +300,113 @@ for i, item in enumerate(main_text_list):
     formatted_text += output_format(item, ruby_content_list[i], format_type, char_widths_dict)
 
 st.write("---")
-st.markdown("**Testo formattato di esempio (anteprima):**")
+
+# スタイル付きHTML(ルビヘッダ)を適用してサンプルテキストを表示
+st.markdown("**フォーマット済みテキスト⇓**")
 components.html(apply_ruby_html_header_and_footer(formatted_text, format_type), height=40, scrolling=False)
 st.write("---")
 
 #=====================================================================
 # ステップ１: CSVファイルを準備 (アップロード or デフォルト)
 #=====================================================================
-st.header("Fase 1: Preparare il file CSV")
+st.header("ステップ１: CSVファイルを準備")
 st.markdown(
     """
-### Selezionare il **file CSV** contenente le radici dell'Esperanto e le relative traduzioni (caratteri cinesi o italiano).
+### エスペラント語根と翻訳情報(漢字)を含む **CSVファイル** を選択してください
 
 ---
     """
 )
 
-csv_choice = st.radio("Come desideri procedere con il file CSV?", ("Carica un file CSV", "Usa il file di default"))
+
+
+csv_choice = st.radio("CSVファイルをどうしますか？", ("アップロードする", "デフォルトを使用する"))
 csv_path_default = "./Appの运行に使用する各类文件/Elenco di radici esperanto con traduzioni italiane e annotazioni ruby.csv"
 
+# 後段で用いるDataFrame
 CSV_data_imported = None
 
-if csv_choice == "Carica un file CSV":
-    st.write("Carica un file CSV (consigliato UTF-8).")
-    uploaded_file = st.file_uploader("Seleziona il file CSV", type=['csv'])
+if csv_choice == "アップロードする":
+    st.write("任意のCSVファイルをアップロードしてください。(UTF-8推奨)")
+    uploaded_file = st.file_uploader("CSVファイルを選択", type=['csv'])
     if uploaded_file is not None:
         file_contents = uploaded_file.read().decode("utf-8")
+        # エスペラント文字を字上符形式(ĉ等)に統一
         converted_text = convert_to_circumflex(file_contents)
         csv_buffer = StringIO(converted_text)
         CSV_data_imported = pd.read_csv(csv_buffer, encoding="utf-8", usecols=[0, 1])
-        st.success("File CSV caricato correttamente.")
+        st.success("CSVファイルがアップロードされました。")
     else:
-        st.warning("Nessun file CSV caricato.")
+        st.warning("CSVファイルがアップロードされていません。")
         st.stop()
 
-elif csv_choice == "Usa il file di default":
+elif csv_choice == "デフォルトを使用する":
     try:
         with open(csv_path_default, 'r', encoding="utf-8") as file:
             text = file.read()
         converted_text = convert_to_circumflex(text)
         csv_buffer = StringIO(converted_text)
         CSV_data_imported = pd.read_csv(csv_buffer, encoding="utf-8", usecols=[0, 1])
-        st.info("Verrà utilizzato il file CSV di default.")
+        st.info("デフォルトのCSVを使用します。")
     except FileNotFoundError:
-        st.error("Impossibile trovare il file CSV di default. Elaborazione interrotta.")
+        st.error("デフォルトのCSVファイルが見つかりません。処理を中断します。")
         st.stop()
 
-st.write("Caricamento del file CSV completato. Procedere oltre.")
+st.write("CSVファイルの読み込みが完了しました。次に進みましょう。")
 st.write("---")
 
 #=====================================================================
 # ステップ2: JSONファイル(語根分解法など)を準備
 #=====================================================================
-st.header("Fase 2: Preparare il/i file JSON (regole di scomposizione, ecc.)")
+st.header("ステップ2: JSONファイル(語根分解法など)を準備")
 st.markdown("""
-È possibile caricare oppure utilizzare i file JSON di default che
-contengono **le regole di scomposizione delle radici esperanto** e/o
-eventuali **testi di sostituzione personalizzati**.
-Si può scaricare un file JSON di esempio e modificarlo per adattarlo alle proprie esigenze.
+**エスペラント単語の語根分解法**や**独自の置換後文字列**を記述したJSONファイルを
+アップロード/またはデフォルトを使用できます。
+**サンプルJSON**をダウンロードし、そこに自分で追加・編集して取り込むイメージです。
 """)
 
-json_choice = st.radio("1. Come procedere con il file JSON per definire la scomposizione delle radici esperanto?", ("Carica un file JSON", "Usa il file di default"))
+# 1. エスペラント単語の語根分解法(カスタム)を指定する JSON
+json_choice = st.radio("1. エスペラント単語の語根分解法を追加指定するJSONファイルをどうしますか？", ("アップロードする", "デフォルトを使用する"))
 json_path_default = "./Appの运行に使用する各类文件/世界语单词词根分解方法の使用者自定义设置.json"
 custom_stemming_setting_list = None
 
-if json_choice == "Carica un file JSON":
-    uploaded_json = st.file_uploader("Carica il file JSON", type=['json'])
+if json_choice == "アップロードする":
+    uploaded_json = st.file_uploader("JSONファイルをアップロードしてください", type=['json'])
     if uploaded_json is not None:
         custom_stemming_setting_list = json.load(uploaded_json)
-        st.success("File JSON caricato correttamente.")
+        st.success("JSONファイルがアップロードされました。")
     else:
-        st.warning("Nessun file JSON caricato.")
+        st.warning("JSONファイルがアップロードされていません。")
         st.stop()
-elif json_choice == "Usa il file di default":
+elif json_choice == "デフォルトを使用する":
     try:
         with open(json_path_default, "r", encoding="utf-8") as g:
             custom_stemming_setting_list = json.load(g)
-        st.info("Verrà utilizzato il file JSON di default.")
+        st.info("デフォルトの JSON を使用します。")
     except FileNotFoundError:
-        st.error("Impossibile trovare il file JSON di default.")
+        st.error("デフォルトの JSON ファイルが見つかりません。")
         st.stop()
 
-json_choice2 = st.radio("2. Come procedere con il file JSON per definire il testo sostituito?", ("Carica un file JSON", "Usa il file di default"))
-json_path_default2 = "./Appの运行に使用する各类文件/替换后文字列(漢字)の使用者自定义设置(基本上完全不推荐).json"
+# 2. 置換後文字列を追加指定する JSON
+json_choice2 = st.radio("置換後文字列を追加指定するJSONファイルをどうしますか？", ("アップロードする", "デフォルトを使用する"))
+json_path_default2 = "./Appの运行に使用する各类文件/替换后文字列(汉字)の使用者自定义设置(基本上完全不推荐).json"
 user_replacement_item_setting_list = None
 
-if json_choice2 == "Carica un file JSON":
-    uploaded_json = st.file_uploader("Carica il secondo file JSON", type=['json'])
+if json_choice2 == "アップロードする":
+    uploaded_json = st.file_uploader("JSONファイル2をアップロードしてください", type=['json'])
     if uploaded_json is not None:
         user_replacement_item_setting_list = json.load(uploaded_json)
-        st.success("File JSON caricato correttamente.")
+        st.success("JSONファイルがアップロードされました。")
     else:
-        st.warning("Nessun file JSON caricato.")
+        st.warning("JSONファイルがアップロードされていません。")
         st.stop()
-elif json_choice2 == "Usa il file di default":
+elif json_choice2 == "デフォルトを使用する":
     try:
         with open(json_path_default2, "r", encoding="utf-8") as g:
             user_replacement_item_setting_list = json.load(g)
-        st.info("Verrà utilizzato il secondo file JSON di default.")
+        st.info("デフォルトの JSON を使用します。")
     except FileNotFoundError:
-        st.error("Impossibile trovare il secondo file JSON di default.")
+        st.error("デフォルトの JSON ファイルが見つかりません。")
         st.stop()
 
 st.write("---")
@@ -368,53 +414,73 @@ st.write("---")
 #=====================================================================
 # ステップ3: 高度な設定 (並列処理)
 #=====================================================================
-st.header("Fase 3: Impostazioni avanzate (elaborazione in parallelo)")
-with st.expander("Apri le impostazioni relative all'elaborazione parallela"):
+st.header("ステップ3: 高度な設定 (並列処理)")
+with st.expander("並列処理についての設定を開く"):
     st.write("""
-    Qui è possibile specificare il numero di processi da utilizzare
-    per l’elaborazione in parallelo durante la creazione del file JSON.
-    Se il numero di radici o il testo da sostituire è molto ampio,
-    si potrebbe ottenere un aumento di velocità sfruttando più core CPU.
+    ここでは、置換JSONファイルの生成時に使用する並列処理のプロセス数を設定します。
+    テキストや語根数が膨大な場合、CPUコアを複数使うことで速度向上する可能性があります。
     """)
 
-    use_parallel = st.checkbox("Usa elaborazione parallela", value=False)
-    num_processes = st.number_input("Numero di processi in parallelo", min_value=2, max_value=6, value=5, step=1)
+    use_parallel = st.checkbox("並列処理を使う", value=False)
+    num_processes = st.number_input("同時プロセス数", min_value=2, max_value=6, value=5, step=1)
 
-st.write("### Creare il file JSON finale per la sostituzione (pulsante)")
+st.write("### 最終的な置換用JSONファイルの作成 (ボタン)")
 
-if st.button("Crea il file JSON per la sostituzione"):
-    with st.spinner("Generazione del file JSON per la sostituzione in corso... Attendere qualche istante."):
+# ここまでが「ステップ3」導入部。
+# 次のブロックで実際に「置換用JSONファイルを作成する」ボタンを押したら動く処理を書いています。
+#=====================================================================
+# 置換用JSONファイルを作成するボタン
+#=====================================================================
+if st.button("置換用JSONファイルを作成する"):
+    # ボタンが押されたときに実行されるブロック
+    # ここで大規模な置換リストを生成し、それをJSONとしてダウンロードできるようにします。
+    with st.spinner("置換用JSONファイルを生成中... しばらくお待ちください。"):
         #-------------------------------------------------------------
         # (1) 大規模データ 'E_stem_with_Part_Of_Speech_list' を開く
+        #    (世界語の単語一覧+品詞情報などをJSONにしたファイル)
+        #    このファイルには、約4万～5万行ほどのエスペラント単語が入っており、
+        #    [ [語根, 品詞], [語根, 品詞], ... ] のような形を想定しています。
         #-------------------------------------------------------------
         with open("./Appの运行に使用する各类文件/PEJVO(世界语全部单词列表)'全部'について、词尾(a,i,u,e,o,n等)をcutし、comma(,)で隔てて词性と併せて记录した列表(E_stem_with_Part_Of_Speech_list).json", "r", encoding="utf-8") as g:
             E_stem_with_Part_Of_Speech_list = json.load(g)
 
         #-------------------------------------------------------------
-        # (2) エスペラントの全語根(約11137個)を辞書型に格納
+        # (2) エスペラントの全語根(約11137個)を辞書型(temporary_replacements_dict)に格納
+        #     - この時点では「old=語根」「new=語根」「優先順位=len(語根)」で初期化
+        #     - 後ほどCSVを使って"new"をイタリア語訳/漢字訳などに置き換える
         #-------------------------------------------------------------
         temporary_replacements_dict = {}
         with open("./Appの运行に使用する各类文件/世界语全部词根_约11137个_202501.txt", 'r', encoding='utf-8') as file:
             E_roots = file.readlines()
             for E_root in E_roots:
                 E_root = E_root.strip()
+                # 数字だけの行('10','7'など)は単語ではない可能性が高いため除外
                 if not E_root.isdigit():
+                    # [置換後文字列, 置換優先順位] という形で保持します。
+                    # 優先順位にはlen(E_root)を設定 (一般的に文字数の多い単語を先に置換するのが安全)
                     temporary_replacements_dict[E_root] = [E_root, len(E_root)]
 
         #-------------------------------------------------------------
         # (3) CSV_data_imported を用いて
         #     「エスペラント語根 → (漢字 or イタリア語訳ルビ等)」を反映させる
+        #     - CSVの各行 [E_root, hanzi_or_meaning] を辞書に取り込み
+        #     - すでに用意してあるtemporary_replacements_dict内で "new"部分を更新するイメージ
         #-------------------------------------------------------------
         for _, (E_root, hanzi_or_meaning) in CSV_data_imported.iterrows():
+            # E_root と翻訳文字列がNaNではなく、かつ '#'で始まる(コメント)でもなく、空でないならOK
             if pd.notna(E_root) and pd.notna(hanzi_or_meaning) \
                and '#' not in E_root and (E_root != '') and (hanzi_or_meaning != ''):
+                # output_format()を介して(ルビ形式/漢字形式など)に変換
+                # 例えば "HTML格式" なら <ruby>Esperant<rt>エスペラント</rt></ruby> などになる
                 temporary_replacements_dict[E_root] = [
                     output_format(E_root, hanzi_or_meaning, format_type, char_widths_dict),
                     len(E_root)
                 ]
 
         #-------------------------------------------------------------
-        # (4) ソート
+        # (4) 上記辞書(temporary_replacements_dict)をリスト化し、
+        #     文字数多い順(len(E_root)の大きい順)にソート
+        #     → 後でsafe_replace()を行う際に、文字数の大きいものを先に置換できるようにする
         #-------------------------------------------------------------
         temporary_replacements_list_1 = []
         for old, new in temporary_replacements_dict.items():
@@ -422,34 +488,46 @@ if st.button("Crea il file JSON per la sostituzione"):
         temporary_replacements_list_2 = sorted(temporary_replacements_list_1, key=lambda x: x[2], reverse=True)
 
         #-------------------------------------------------------------
-        # (5) placeholder リストを作成
+        # (5) placeholder(占位符)を使い、 (old→placeholder→new) の段階置換を安全に行うリストを作成
+        #     つまり、temporary_replacements_list_final = [ [old, new, placeholder], ... ] という形にし、
+        #     実際のsafe_replaceで衝突しないようにする。
         #-------------------------------------------------------------
         temporary_replacements_list_final = []
         for kk in range(len(temporary_replacements_list_2)):
+            # imported_placeholders_for_global_replacement[kk] が衝突しないユニークな文字列
+            # ここで placeholders[kk] を割り当てることで多量の単語を区別できる
             temporary_replacements_list_final.append([
-                temporary_replacements_list_2[kk][0],
-                temporary_replacements_list_2[kk][1],
-                imported_placeholders_for_global_replacement[kk]
+                temporary_replacements_list_2[kk][0],  # old(エスペラント語根)
+                temporary_replacements_list_2[kk][1],  # new(翻訳文字列)
+                imported_placeholders_for_global_replacement[kk] # placeholder
             ])
 
         #-------------------------------------------------------------
-        # (6) parallel_build_pre_replacements_dict の実行
+        # (6) 'E_stem_with_Part_Of_Speech_list' を用いて、
+        #     先ほどの placeholder リストで実際に safe_replace する
+        #     - parallel_build_pre_replacements_dict: 行単位で並列に置換(大規模データ対応)
         #-------------------------------------------------------------
         if use_parallel:
+            # 並列処理を使う場合
             pre_replacements_dict_1 = parallel_build_pre_replacements_dict(
                 E_stem_with_Part_Of_Speech_list,
                 temporary_replacements_list_final,
                 num_processes
             )
         else:
-            progress_bar = st.progress(0)
-            progress_text = st.empty()
+            # 並列処理を使わない場合 (進捗バーを表示)
+            progress_bar = st.progress(0)   # Streamlitの進捗バー
+            progress_text = st.empty()      # 進捗状況を文字で表示
+
             total_items = len(E_stem_with_Part_Of_Speech_list)
             pre_replacements_dict_1 = {}
 
             for i, j in enumerate(E_stem_with_Part_Of_Speech_list):
+                # jが [語根, 品詞] の形かどうかチェック
                 if len(j) == 2:
+                    # 語根が2文字以上(あまりに短いとエラーなどの可能性があるため)
                     if len(j[0]) >= 2:
+                        # もし既に辞書に存在したら、品詞情報を追記
                         if j[0] in pre_replacements_dict_1:
                             if j[1] not in pre_replacements_dict_1[j[0]][1]:
                                 pre_replacements_dict_1[j[0]] = [
@@ -457,10 +535,12 @@ if st.button("Crea il file JSON per la sostituzione"):
                                     pre_replacements_dict_1[j[0]][1] + ',' + j[1]
                                 ]
                         else:
+                            # safe_replace()を実行し、(語根→placeholder→翻訳文字列)を適用
                             pre_replacements_dict_1[j[0]] = [
                                 safe_replace(j[0], temporary_replacements_list_final),
                                 j[1]
                             ]
+                # 進捗表示 (1000件ごとに更新)
                 if i % 1000 == 0:
                     current_count = i + 1
                     progress_value = int(current_count / total_items * 100)
@@ -1027,12 +1107,11 @@ if st.button("Crea il file JSON per la sostituzione"):
 
         # JSON文字列にダンプし、ダウンロードボタンを生成
         download_data = json.dumps(combined_data, ensure_ascii=False, indent=2)
-        st.success("Elenco di sostituzione generato con successo!")
+        st.success("置換リストの生成が完了しました！")
 
         st.download_button(
-            label="Scarica la lista finale di sostituzione (unione di 3 file JSON)",
+            label="Download 最终的な替换用リスト(列表)(合并3个JSON文件)",
             data=download_data,
             file_name="最终的な替换用リスト(列表)(合并3个JSON文件).json",
             mime='application/json'
         )
-
