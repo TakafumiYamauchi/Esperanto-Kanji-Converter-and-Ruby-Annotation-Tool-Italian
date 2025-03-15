@@ -66,11 +66,8 @@ from esp_replacement_json_make_module import (
 
 #---------------------------------------------------------------------
 # 以下は動詞接尾辞や特殊接尾辞などを扱うための変数群です。
-# 動詞の活用語尾(as,is,os,usなど)や、接尾辞「an」「on」などのデータを
-# コード下部での処理でまとめて扱うために定義しています。
 #---------------------------------------------------------------------
 
-# 動詞の活用語尾 (例: as,is,os,us など) を表す辞書
 verb_suffix_2l = {
     'as':'as', 'is':'is', 'os':'os', 'us':'us','at':'at','it':'it','ot':'ot',
     'ad':'ad','iĝ':'iĝ','ig':'ig','ant':'ant','int':'int','ont':'ont'
@@ -85,6 +82,9 @@ suffix_2char_roots=['ad', 'ag', 'am', 'ar', 'as', 'at', 'av', 'di', 'ec', 'eg', 
 prefix_2char_roots=['al', 'am', 'av', 'bo', 'di', 'du', 'ek', 'el', 'en', 'fi', 'ge', 'ir', 'lu', 'ne', 'ok', 'or', 'ov', 'pi', 're', 'te', 'uz','ĝu','aĉ','aĝ','ŝu','eĥ']
 standalone_2char_roots=['al', 'ci', 'da', 'de', 'di', 'do', 'du', 'el', 'en', 'fi', 'ha', 'he', 'ho', 'ia', 'ie', 'io', 'iu', 'ja', 'je', 'ju','ke', 'la', 'li', 'mi', 'ne', 'ni', 'nu', 'ok', 'ol', 'po', 'se', 'si', 've', 'vi','ŭa','aŭ','ĉe','ĝi','ŝi','ĉu']
 
+#---------------------------------------------------------------------
+# placeholders / 字体幅 情報などを読み込み
+#---------------------------------------------------------------------
 imported_placeholders_for_global_replacement = import_placeholders(
     './Appの运行に使用する各类文件/占位符(placeholders)_$20987$-$499999$_全域替换用.txt'
 )
@@ -145,7 +145,7 @@ with st.expander("Elenco di file di esempio (download)"):
     """)
     file_path0 = './Appの运行に使用する各类文件/Elenco di radici esperanto con traduzioni italiane e annotazioni ruby.csv'
     with open(file_path0, "rb") as file:
-        btn = st.download_button(
+        st.download_button(
             label="Scarica CSV di esempio n.1 (Radici Esperanto – Traduzione Italiana + annotazioni ruby)",
             data=file,
             file_name="Elenco_di_radici_esperanto_con_traduzioni_italiane_e_annotazioni_ruby.csv",
@@ -158,7 +158,7 @@ with st.expander("Elenco di file di esempio (download)"):
     """)
     file_path0 = './Appの运行に使用する各类文件/Mingeo先生版 世界语词根-汉字对应列表.csv'
     with open(file_path0, "rb") as file:
-        btn = st.download_button(
+        st.download_button(
             label="Scarica CSV di esempio n.2 (Radici Esperanto – Caratteri cinesi di Mingeo)",
             data=file,
             file_name="RadiciEsperanto_CaratteriCinesi_propostaMingeo.csv",
@@ -171,10 +171,10 @@ with st.expander("Elenco di file di esempio (download)"):
     """)
     file_path0 = './Appの运行に使用する各类文件/世界语词根-汉字对应列表.csv'
     with open(file_path0, "rb") as file:
-        btn = st.download_button(
+        st.download_button(
             label="Scarica CSV di esempio n.3 (Radici Esperanto – Caratteri cinesi)",
             data=file,
-            file_name="RadiciEsperanto_汉字.csv",
+            file_name="RadiciEsperanto_CaratteriCinesi.csv",
             mime="text/csv"
         )
 
@@ -186,7 +186,7 @@ with st.expander("Elenco di file di esempio (download)"):
     """)
     json_file_path = './Appの运行に使用する各类文件/世界语单词词根分解方法の使用者自定义设置.json'
     with open(json_file_path, "rb") as file_json:
-        btn_json = st.download_button(
+        st.download_button(
             label="Scarica JSON di esempio n.1 (Scomposizione delle radici esperanto)",
             data=file_json,
             file_name="ImpostazioniUtente_ScomposizioneRadiciEsperanto.json",
@@ -201,10 +201,10 @@ with st.expander("Elenco di file di esempio (download)"):
     """)
     json_file_path2 = './Appの运行に使用する各类文件/替换后文字列(汉字)の使用者自定义设置(基本上完全不推荐).json'
     with open(json_file_path2, "rb") as file_json:
-        btn_json = st.download_button(
+        st.download_button(
             label="Scarica JSON di esempio n.2 (Impostazioni utente per il testo sostituito)",
             data=file_json,
-            file_name="ImpostazioniUtente_TestoSostituito_汉字.json",
+            file_name="ImpostazioniUtente_TestoSostituito_CaratteriCinesi.json",
             mime="application/json"
         )
 
@@ -237,16 +237,15 @@ with st.expander("Elenco di file di esempio (download)"):
 st.write("---")
 
 #=====================================================================
-# ユーザーに見せる出力形式選択 (例: HTML形式＿ルビ文字のサイズ調整等)
+# 出力形式(ルビなど)の選択肢 (GUIに表示されるキーをイタリア語に)
 #=====================================================================
 options = {
-    # ★ここで辞書キー（ユーザーがGUIで見るテキスト）をすべてイタリア語へ変更
     "HTML (con dimensione personalizzata dei caratteri Ruby)": "HTML格式_Ruby文字_大小调整",
-    "HTML (con dimensione Ruby personalizzata e sostituzione di 汉字)": "HTML格式_Ruby文字_大小调整_汉字替换",
+    "HTML (con dimensione Ruby personalizzata e sostituzione di caratteri cinesi)": "HTML格式_Ruby文字_大小调整_汉字替换",
     "HTML (base)": "HTML格式",
-    "HTML (con sostituzione di 汉字)": "HTML格式_汉字替换",
+    "HTML (con sostituzione di caratteri cinesi)": "HTML格式_汉字替换",
     "Formato con parentesi": "括弧(号)格式",
-    "Formato con parentesi (con sostituzione di 汉字)": "括弧(号)格式_汉字替换",
+    "Formato con parentesi (con sostituzione di caratteri cinesi)": "括弧(号)格式_汉字替换",
     "Sostituzione semplice": "替换后文字列のみ(仅)保留(简单替换)"
 }
 
@@ -254,7 +253,7 @@ display_options = list(options.keys())
 selected_display = st.selectbox('Seleziona il formato di output:', display_options)
 format_type = options[selected_display]
 
-# 簡易サンプルの表示
+# 簡易サンプルの表示 (出力例)
 main_text_list = ['Esperant','lingv', 'pac', 'amik', 'ec']
 ruby_content_list = ['世界语', '语言', '和平', '友', '性质']
 formatted_text = ''
@@ -415,7 +414,7 @@ if st.button("Crea il file JSON per la sostituzione"):
                 ]
 
         #-------------------------------------------------------------
-        # (4) ソート
+        # (4) ソート（長い単語ほど優先的に置換させる）
         #-------------------------------------------------------------
         temporary_replacements_list_1 = []
         for old, new in temporary_replacements_dict.items():
@@ -423,7 +422,7 @@ if st.button("Crea il file JSON per la sostituzione"):
         temporary_replacements_list_2 = sorted(temporary_replacements_list_1, key=lambda x: x[2], reverse=True)
 
         #-------------------------------------------------------------
-        # (5) placeholder リストを作成
+        # (5) placeholder リストを作成 (collision回避)
         #-------------------------------------------------------------
         temporary_replacements_list_final = []
         for kk in range(len(temporary_replacements_list_2)):
@@ -434,7 +433,7 @@ if st.button("Crea il file JSON per la sostituzione"):
             ])
 
         #-------------------------------------------------------------
-        # (6) parallel_build_pre_replacements_dict の実行
+        # (6) parallel_build_pre_replacements_dict の実行 (並列 or 単一)
         #-------------------------------------------------------------
         if use_parallel:
             pre_replacements_dict_1 = parallel_build_pre_replacements_dict(
@@ -470,7 +469,6 @@ if st.button("Crea il file JSON per la sostituzione"):
 
             progress_bar.progress(100)
             progress_text.write("L'elaborazione più lunga è completata al 100%. (Occorrono ancora 3~4 secondi.)")
-
 
 
 
